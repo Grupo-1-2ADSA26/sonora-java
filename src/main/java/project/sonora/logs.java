@@ -16,6 +16,9 @@ public class logs {
         String dataHoraFormatada = null;
         formatoData = formatoData.ofPattern("dd/MM/yyyy HH:mm:ss");
         List<String> logs = new ArrayList<>();
+        List<String> logUser = new ArrayList<>();
+        List<String> logEmpresa = new ArrayList<>();
+        List<String> logSugestao = new ArrayList<>();
         Scanner scan = new Scanner(System.in);
         Scanner scanLn = new Scanner(System.in);
         Integer opcao = null;
@@ -53,7 +56,8 @@ public class logs {
 
                     dataHora = LocalDateTime.now();
                     dataHoraFormatada = dataHora.format(formatoData);
-                    logs.add("O usuário "+nome+" foi adicionado com sucesso ao sistema  "+dataHoraFormatada);
+                    logs.add(dataHoraFormatada+"-O usuário "+nome+" foi adicionado com sucesso ao sistema");
+                    logUser.add(dataHoraFormatada+"-O usuário "+nome+" foi adicionado com sucesso ao sistema");
                 break;
 
                 case 2:
@@ -72,7 +76,8 @@ public class logs {
 
                     dataHora = LocalDateTime.now();
                     dataHoraFormatada = dataHora.format(formatoData);
-                    logs.add("A empresa "+razaoSocial+" foi adicionada com sucesso ao sistema  "+dataHoraFormatada);
+                    logs.add(dataHoraFormatada+"-A empresa "+razaoSocial+" foi adicionada com sucesso ao sistema");
+                    logEmpresa.add(dataHoraFormatada+"-A empresa "+razaoSocial+" foi adicionada com sucesso ao sistema");
                 break;
 
                 case 3:
@@ -118,21 +123,71 @@ public class logs {
 
                     dataHora = LocalDateTime.now();
                     dataHoraFormatada = dataHora.format(formatoData);
-                    logs.add("A sugestão foi feita com sucesso pelo sistema  "+dataHoraFormatada);
+                    logs.add(dataHoraFormatada+"-A sugestão foi feita com sucesso pelo sistema");
+                    logSugestao.add(dataHoraFormatada+"-A sugestão foi feita com sucesso pelo sistema");
                 break;
                 case 4:
-
+                    Boolean cond = true;
                     String retorno = "";
-                    for (int i = 0; i < logs.size(); i++) {
-                        retorno += logs.get(i)+"\n";
-                    }
-                    do{
-                        System.out.println(retorno);
-                        System.out.println("Se deseja sair digite 0");
-                        sair = scan.nextInt();
-                    }while (sair != 0);
+                    Integer opLog = null;
+                    String menuLog = """
+               ========================================
+               |                                      |
+               |      Selecione a opção desejada      |
+               |      1- Logs Cadastro de Usuário     |
+               |      2- Logs Cadastro de Empresa     |
+               |      3- Logs Sugestão de Artista     |
+               |      4- Todos os Logs                |
+               |      5- Sair                         |
+               |                                      |
+               ======================================== 
+                            """;
+                    while (cond) {
+                        System.out.println(menuLog);
+                        opLog = scan.nextInt();
+                        switch (opLog) {
+                            case 1:
+                                for (int i = 0; i < logUser.size(); i++) {
+                                    retorno += logUser.get(i)+"\n";
+                                }
+                                System.out.println(retorno);
+                                retorno = "";
+                                break;
 
-                break;
+                            case 2:
+                                for (int i = 0; i < logEmpresa.size(); i++) {
+                                    retorno += logEmpresa.get(i)+"\n";
+                                }
+                                System.out.println(retorno);
+                                retorno = "";
+                                break;
+
+                            case 3:
+                                for (int i = 0; i < logSugestao.size(); i++) {
+                                    retorno += logSugestao.get(i)+"\n";
+                                }
+                                System.out.println(retorno);
+                                retorno = "";
+                                break;
+
+                            case 4:
+                                for (int i = 0; i < logs.size(); i++) {
+                                    retorno += logs.get(i)+"\n";
+                                }
+                                System.out.println(retorno);
+                                retorno = "";
+                                break;
+
+                            case 5:
+                                cond = false;
+                                break;
+
+                            default:
+                                System.out.println("Digite uma opção válida");
+                                break;
+                        }
+                    }
+                    break;
 
                 case 5:
                 return;
@@ -141,6 +196,7 @@ public class logs {
                     System.out.println("Digite uma opção válida");
                 break;
             }
+
         }
     }
 }
