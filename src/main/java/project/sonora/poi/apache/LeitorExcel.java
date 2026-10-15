@@ -38,7 +38,7 @@ public class LeitorExcel {
 
         try (
                 InputStream arquivo = new FileInputStream(nomeArquivo);
-                Workbook workbook = new XSSFWorkbook(arquivo) // caso seja .xls troque para HSSFWorkbook
+                Workbook workbook = new XSSFWorkbook(arquivo)
         ) {
 
             System.out.printf("Iniciando leitura do arquivo %s%n", nomeArquivo);
