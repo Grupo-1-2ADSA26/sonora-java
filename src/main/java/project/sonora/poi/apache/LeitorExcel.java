@@ -15,6 +15,9 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.CellType;
 
 public class LeitorExcel {
+
+    private final Logger logger = new Logger();
+
     private boolean celulaValida(Row row, int coluna) {
         if (row.getCell(coluna) == null) {
             return false;
@@ -40,6 +43,8 @@ public class LeitorExcel {
                 InputStream arquivo = new FileInputStream(nomeArquivo);
                 Workbook workbook = new XSSFWorkbook(arquivo)
         ) {
+
+            logger.info("Iniciando leitura do arquivo: " + nomeArquivo);
 
             System.out.printf("Iniciando leitura do arquivo %s%n", nomeArquivo);
 
@@ -154,14 +159,28 @@ public class LeitorExcel {
 
                 musicasExtraidas.add(musica);
             }
-
             printarLinhas();
+
+            logger.sucesso(
+                    "Leitura do Excel concluída. Total de músicas extraídas: "
+                            + musicasExtraidas.size()
+            );
+
             System.out.println("Leitura do arquivo finalizada");
+
             printarLinhas();
 
             return musicasExtraidas;
         } catch (IOException e) {
-            return musicasExtraidas;
+
+            logger.erro(
+                    "Falha ao ler o arquivo Excel: " + e.getMessage()
+            );
+
+            throw new RuntimeException(
+                    "Não foi possível ler o arquivo Excel: " + nomeArquivo,
+                    e
+            );
         }
     }
 
