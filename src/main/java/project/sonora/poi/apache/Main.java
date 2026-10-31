@@ -15,7 +15,7 @@ public class Main {
 
                 logger.info("Iniciando classificação dos gêneros dos artistas");
 
-                int total = repository.classificarGenerosArtistas(2000);
+                int total = repository.classificarGenerosArtistas(10);
 
                 if (total > 0) {
                     logger.sucesso(

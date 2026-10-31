@@ -15,8 +15,8 @@ public class MusicaRepository {
                 "SELECT id_artista FROM artista WHERE nome = ?";
 
         String sqlMusica =
-                "INSERT INTO musica (titulo, album, id_artista, uri_musica) " +
-                        "VALUES (?, ?, ?, ?)";
+                "INSERT INTO musica (titulo, album, id_artista) " +
+                        "VALUES (?, ?, ?)";
 
         String sqlMetrica =
                 "INSERT INTO metrica_streaming " +
@@ -93,7 +93,6 @@ public class MusicaRepository {
                     inserirMusica.setString(1, titulo);
                     inserirMusica.setString(2, CorrigirTextoUtil.corrigir(musica.getAlbum()));
                     inserirMusica.setInt(3, idArtista);
-                    inserirMusica.setString(4, musica.getUriMusica());
                     inserirMusica.executeUpdate();
 
                     int idMusica;
