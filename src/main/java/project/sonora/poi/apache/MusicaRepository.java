@@ -9,13 +9,13 @@ public class MusicaRepository {
 
     public int salvarTodas(List<Musica> musicas) throws SQLException {
         String sqlArtista =
-                "INSERT INTO artista (nome) VALUES (?)";
+                "INSERT INTO artista (nome, url_artista) VALUES (?, ?)";
 
         String sqlBuscarArtista =
                 "SELECT id_artista FROM artista WHERE nome = ?";
 
         String sqlMusica =
-                "INSERT INTO musica (titulo, album, genero, id_artista) " +
+                "INSERT INTO musica (titulo, album, id_artista, uri_musica) " +
                         "VALUES (?, ?, ?, ?)";
 
         String sqlMetrica =
@@ -47,8 +47,8 @@ public class MusicaRepository {
                 Map<String, Integer> artistas = new HashMap<>();
 
                 for (Musica musica : musicas) {
-                    String artista = musica.getNomeArtista();
-                    String titulo = musica.getTrackMusica();
+                    String artista = CorrigirTextoUtil.corrigir(musica.getNomeArtista());
+                    String titulo = CorrigirTextoUtil.corrigir(musica.getTrackMusica());
 
                     // A tabela musica exige título e artista.
                     if (artista == null || artista.isBlank()
@@ -71,6 +71,7 @@ public class MusicaRepository {
                                 idArtista = rs.getInt("id_artista");
                             } else {
                                 inserirArtista.setString(1, artista);
+                                inserirArtista.setString(2, musica.getUrlSpotify());
                                 inserirArtista.executeUpdate();
 
                                 try (ResultSet chaves =
@@ -90,9 +91,9 @@ public class MusicaRepository {
 
                     // Insere a música e recupera seu ID.
                     inserirMusica.setString(1, titulo);
-                    inserirMusica.setString(2, musica.getAlbum());
-                    inserirMusica.setNull(3, Types.VARCHAR);
-                    inserirMusica.setInt(4, idArtista);
+                    inserirMusica.setString(2, CorrigirTextoUtil.corrigir(musica.getAlbum()));
+                    inserirMusica.setInt(3, idArtista);
+                    inserirMusica.setString(4, musica.getUriMusica());
                     inserirMusica.executeUpdate();
 
                     int idMusica;
@@ -151,4 +152,138 @@ public class MusicaRepository {
 
         return inseridas;
     }
+
+
+    public int classificarGenerosArtistas(int limite) throws SQLException {
+
+        String sqlBuscar =
+                "SELECT id_artista, nome, url_artista " +
+                        "FROM artista " +
+                        "WHERE genero_status = 'PENDENTE' " +
+                        "ORDER BY id_artista " +
+                        "LIMIT ?";
+
+        String sqlAtualizar =
+                "UPDATE artista " +
+                        "SET genero = ?, genero_status = ? " +
+                        "WHERE id_artista = ?";
+
+        MusicBrainzService musicBrainz = new MusicBrainzService();
+
+        // Carrega os artistas do lote antes de iniciar as consultas.
+        List<ArtistaPendente> artistas = new java.util.ArrayList<>();
+
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement buscar = conn.prepareStatement(sqlBuscar)) {
+
+            buscar.setInt(1, limite);
+
+            try (ResultSet rs = buscar.executeQuery()) {
+                while (rs.next()) {
+                    artistas.add(new ArtistaPendente(
+                            rs.getInt("id_artista"),
+                            rs.getString("nome"),
+                            rs.getString("url_artista")
+                    ));
+                }
+            }
+        }
+
+        int processados = 0;
+        int encontrados = 0;
+        int semResultado = 0;
+
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement atualizar =
+                     conn.prepareStatement(sqlAtualizar)) {
+
+            for (ArtistaPendente artista : artistas) {
+
+                try {
+                    String genero = musicBrainz.buscarGeneroArtista(
+                            artista.nome(),
+                            artista.urlSpotify()
+                    );
+
+                    String status;
+
+                    if (genero != null && !genero.isBlank()) {
+                        status = "OK";
+                    } else {
+                        status = "SEM_RESULTADO";
+                        genero = null;
+                    }
+
+                    atualizar.setString(1, genero);
+                    atualizar.setString(2, status);
+                    atualizar.setInt(3, artista.id());
+
+                    atualizar.executeUpdate();
+
+                    processados++;
+
+                    if (status.equals("OK")) {
+                        encontrados++;
+                    } else {
+                        semResultado++;
+                    }
+
+                    System.out.println(
+                            "[" + processados + "/" + artistas.size() + "] "
+                                    + artista.nome()
+                                    + " -> "
+                                    + (genero == null ? "Sem gênero" : genero)
+                    );
+
+                } catch (Exception e) {
+
+                    String mensagem = e.getMessage() == null
+                            ? ""
+                            : e.getMessage();
+
+                    // Evita insistir caso a API esteja limitando chamadas.
+                    if (mensagem.contains("HTTP 429")
+                            || mensagem.contains("HTTP 503")
+                            || mensagem.contains("MusicBrainz indisponível")) {
+
+                        System.err.println(
+                                "MusicBrainz limitou ou interrompeu as consultas: "
+                                        + mensagem
+                        );
+
+                        System.err.println(
+                                "Classificação interrompida. "
+                                        + "Os artistas restantes continuam pendentes."
+                        );
+
+                        break;
+                    }
+
+                    System.err.println(
+                            "Erro ao classificar " + artista.nome()
+                                    + ": " + mensagem
+                    );
+
+                    // Erros temporários não mudam o status.
+                    // O artista continua PENDENTE para outra execução.
+                }
+            }
+        }
+
+        System.out.println("\n========== RESUMO ==========");
+        System.out.println("Artistas no lote: " + artistas.size());
+        System.out.println("Processados: " + processados);
+        System.out.println("Com gênero: " + encontrados);
+        System.out.println("Sem resultado: " + semResultado);
+        System.out.println("============================");
+
+        return processados;
+    }
+
+    private record ArtistaPendente(
+            int id,
+            String nome,
+            String urlSpotify
+    ) {}
+
 }

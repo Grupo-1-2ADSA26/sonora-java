@@ -88,6 +88,11 @@ public class LeitorExcel {
                     albumTipo = row.getCell(5).getStringCellValue();
                 }
 
+                String uriMusica = null;
+                if (celulaValida(row, 6)) {
+                    uriMusica = row.getCell(6).getStringCellValue();
+                }
+
                 Double danceability = null;
                 if (celulaValida(row, 7) && row.getCell(7).getCellType() == CellType.NUMERIC) {
                     danceability = row.getCell(7).getNumericCellValue();
@@ -155,7 +160,7 @@ public class LeitorExcel {
 
                 Musica musica = new Musica(idMusica,nomeArtista,urlSpotify,trackMusica,album,albumTipo,
                         danceability,energy,loudness,speechiness,acousticness,valence,tempo,durationMs,
-                        titleMusica,views,likes,comentarios,streams);
+                        titleMusica,views,likes,comentarios,streams, uriMusica);
 
                 musicasExtraidas.add(musica);
             }
