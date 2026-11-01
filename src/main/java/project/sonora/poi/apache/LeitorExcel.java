@@ -56,7 +56,7 @@ public class LeitorExcel {
                 }
 
                 // Extraindo valor das células e criando objeto Livro
-                System.out.println("Lendo linha " + row.getRowNum());
+                //System.out.println("Lendo linha " + row.getRowNum());
 
                 Integer idMusica = null;
                 if (celulaValida(row, 0) && row.getCell(0).getCellType() == CellType.NUMERIC) {
