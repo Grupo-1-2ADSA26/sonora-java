@@ -98,10 +98,10 @@ public class LogConsulta {
                     String statusLog = resultado.getString("status");
 
                     System.out.println("----------------------------------------");
+                    System.out.println("Data/Hora: " + dataHora);
                     System.out.println("ID: " + id);
                     System.out.println("Tipo: " + tipo);
                     System.out.println("Mensagem: " + mensagem);
-                    System.out.println("Data/Hora: " + dataHora);
                     System.out.println("Status: " + statusLog);
                 }
 
