@@ -20,8 +20,9 @@ public class Musica {
    private Integer likes;
    private Integer comentarios;
    private Integer streams;
+   private String uriMusica;
 
- public Musica(Integer idMusica, String nomeArtista, String urlSpotify, String trackMusica, String album, String albumTipo, Double danceability, Double energy, Double loudness, Double speechiness, Double acousticness, Double valence, Double tempo, Double durationMs, String titleMusica, Integer views, Integer likes, Integer comentarios, Integer streams) {
+ public Musica(Integer idMusica, String nomeArtista, String urlSpotify, String trackMusica, String album, String albumTipo, Double danceability, Double energy, Double loudness, Double speechiness, Double acousticness, Double valence, Double tempo, Double durationMs, String titleMusica, Integer views, Integer likes, Integer comentarios, Integer streams, String uriMusica) {
   this.idMusica = idMusica;
   this.nomeArtista = nomeArtista;
   this.urlSpotify = urlSpotify;
@@ -41,6 +42,15 @@ public class Musica {
   this.likes = likes;
   this.comentarios = comentarios;
   this.streams = streams;
+  this.uriMusica = uriMusica;
+ }
+
+ public String getUriMusica() {
+  return uriMusica;
+ }
+
+ public void setUriMusica(String uriMusica) {
+  this.uriMusica = uriMusica;
  }
 
  public Integer getIdMusica() {

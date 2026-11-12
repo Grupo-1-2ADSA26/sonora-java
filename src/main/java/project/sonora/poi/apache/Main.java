@@ -7,8 +7,28 @@ public class Main {
     public static void main(String[] args) {
         String nomeArquivo = "spotify-youtube-dataset_apache_poi.xlsx";
         Logger logger = new Logger();
+        MusicaRepository repository = new MusicaRepository();
 
         try {
+            if (args.length > 0
+                    && args[0].equalsIgnoreCase("classificar")) {
+
+                logger.info("Iniciando classificação dos gêneros dos artistas");
+
+                int total = repository.classificarGenerosArtistas(2100);
+
+                if (total > 0) {
+                    logger.sucesso(
+                            "Execução encerrada. Artistas processados: " + total
+                    );
+                } else {
+                    logger.info(
+                            "Nenhum artista foi processado nesta execução."
+                    );
+                }
+                return;
+            }
+
             // 1. Leitura do Excel
             logger.info("Iniciando leitura do arquivo Excel: " + nomeArquivo);
 
@@ -25,7 +45,6 @@ public class Main {
             // 2. Inserção no banco
             logger.info("Iniciando inserção das músicas no banco de dados");
 
-            MusicaRepository repository = new MusicaRepository();
             int total = repository.salvarTodas(musicas);
 
             System.out.println("Total inserido no banco: " + total);
